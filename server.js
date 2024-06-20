@@ -4,17 +4,18 @@ const WebSocket = require('ws');
 const path = require('path');
 const EventHubReader = require('./scripts/event-hub-reader.js');
 
-const iotHubConnectionString = process.env.IotHubConnectionString;
+// Asignar directamente la cadena de conexión aquí
+const iotHubConnectionString = "HostName=InternetCosas.azure-devices.net;SharedAccessKeyName=iothubowner;SharedAccessKey=BTQVfDbayJJvFuxCDXEV+ka0xVLeeIFQQAIoTMsX2FQ=";
 if (!iotHubConnectionString) {
-  console.error(`Environment variable IotHubConnectionString must be specified.`);
+  console.error('Environment variable IotHubConnectionString must be specified.');
   return;
 }
 console.log(`Using IoT Hub connection string [${iotHubConnectionString}]`);
 
-const eventHubConsumerGroup = process.env.EventHubConsumerGroup;
-console.log(eventHubConsumerGroup);
+// Asignar directamente el grupo de consumidores del Event Hub aquí
+const eventHubConsumerGroup = "tuConsumerGroup"; // Reemplaza "tuConsumerGroup" con el nombre real de tu grupo de consumidores
 if (!eventHubConsumerGroup) {
-  console.error(`Environment variable EventHubConsumerGroup must be specified.`);
+  console.error('Environment variable EventHubConsumerGroup must be specified.');
   return;
 }
 console.log(`Using event hub consumer group [${eventHubConsumerGroup}]`);
@@ -53,9 +54,16 @@ const eventHubReader = new EventHubReader(iotHubConnectionString, eventHubConsum
     try {
       const payload = {
         IotData: message,
-        MessageDate: date || Date.now().toISOString(),
+        MessageDate: date || new Date().toISOString(),
         DeviceId: deviceId,
       };
+
+      wss.broadcast(JSON.stringify(payload));
+    } catch (err) {
+      console.error('Error broadcasting: [%s] from [%s].', err, message);
+    }
+  });
+})().catch(console.error);
 
       wss.broadcast(JSON.stringify(payload));
     } catch (err) {
